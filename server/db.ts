@@ -2,6 +2,7 @@ import fs from 'fs';
 import path from 'path';
 import { ChildAidApplication, FAQItem, NonMonetaryStats, UserProfile } from '../src/types';
 import { INITIAL_APPLICATIONS, INITIAL_FAQS, INITIAL_NON_MONETARY_STATS } from '../src/data/initialData';
+import { saveToSupabase } from './supabase';
 
 const DATA_DIR = path.join(process.cwd(), 'data');
 const DB_FILE = path.join(DATA_DIR, 'db.json');
@@ -73,6 +74,12 @@ function saveDatabase(data: DatabaseSchema): void {
   } catch (err) {
     console.error('Failed to save to db.json:', err);
   }
+
+  // Asynchronously sync with Supabase
+  saveToSupabase('database', data).catch((e) => console.warn('Supabase sync notice:', e));
+  saveToSupabase('applications', data.applications).catch(() => {});
+  saveToSupabase('users', data.users).catch(() => {});
+  saveToSupabase('stats', data.stats).catch(() => {});
 }
 
 export async function getUsers(): Promise<UserProfile[]> {

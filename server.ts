@@ -11,6 +11,7 @@ import {
   getUserByClerkId,
   updateApplicationStatus,
 } from './server/db';
+import { checkSupabaseStatus } from './server/supabase';
 
 async function startServer() {
   const app = express();
@@ -22,6 +23,12 @@ async function startServer() {
   // API Routes
   app.get('/api/health', (_req, res) => {
     res.json({ status: 'ok', timestamp: new Date().toISOString() });
+  });
+
+  // Supabase Status check endpoint
+  app.get('/api/supabase/status', async (_req, res) => {
+    const status = await checkSupabaseStatus();
+    res.json(status);
   });
 
   // Get Approved Children (for Homepage)
